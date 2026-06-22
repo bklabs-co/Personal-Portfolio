@@ -5,7 +5,7 @@ import { FiArrowUpRight, FiGithub, FiX, FiExternalLink } from "react-icons/fi";
 export default function ProjectCard({ project, index }) {
   const [open, setOpen] = useState(false);
   const isPro = project.type === "professional";
-  const accent = isPro ? "#4f7bff" : "#9b87ff";
+  const accent = isPro ? "#ff1e00" : "#ff4500";
 
   return (
     <>

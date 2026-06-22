@@ -1,40 +1,36 @@
-import { FiGithub, FiLinkedin } from "react-icons/fi";
 import { profile } from "../data/content";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-line px-6 py-8">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
-        <p className="chip text-faint">
-          &copy; {new Date().getFullYear()} {profile.name}. Built with React &amp; Tailwind.
-        </p>
-        <div className="flex items-center gap-5">
-          <a
-            href={profile.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-faint transition-colors hover:text-signal"
-            aria-label="GitHub"
-          >
-            <FiGithub className="h-4 w-4" />
-          </a>
-          <a
-            href={profile.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-faint transition-colors hover:text-signal"
-            aria-label="LinkedIn"
-          >
-            <FiLinkedin className="h-4 w-4" />
-          </a>
-          <button
-            onClick={() => document.getElementById("top")?.scrollIntoView({ behavior: "smooth" })}
-            className="chip text-faint transition-colors hover:text-signal"
-          >
-            Back to top &uarr;
-          </button>
-        </div>
-      </div>
+    <footer style={{
+      padding: "2rem 4rem",
+      borderTop: "1px solid rgba(255,255,255,0.06)",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      background: "rgb(10,10,10)",
+    }}>
+      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.2)" }}>
+        {profile.name} &copy; 2025
+      </span>
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        style={{
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: "0.7rem",
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.2)",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          transition: "color 0.2s",
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = "rgb(240,240,240)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(255,255,255,0.2)"; }}
+      >
+        Back to top &uarr;
+      </button>
     </footer>
   );
 }

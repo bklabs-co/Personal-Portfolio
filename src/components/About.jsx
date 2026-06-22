@@ -1,132 +1,180 @@
-import { useRef, useEffect, useState } from "react";
-import { motion, useInView } from "framer-motion";
-import Reveal from "./Reveal";
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { profile, stats } from "../data/content";
-import profileImg from "../assets/profile-clean.jpg";
 
-function Counter({ target, duration = 1.5 }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  const numTarget = parseInt(target.replace(/\D/g, ""), 10) || 0;
-  const suffix = target.replace(/[0-9]/g, "");
+gsap.registerPlugin(ScrollTrigger);
 
-  useEffect(() => {
-    if (!inView || numTarget === 0) return;
-    let start = 0;
-    const increment = numTarget / (duration * 60);
-    const timer = setInterval(() => {
-      start += increment;
-      if (start >= numTarget) {
-        setCount(numTarget);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(start));
-      }
-    }, 1000 / 60);
-    return () => clearInterval(timer);
-  }, [inView, numTarget, duration]);
-
-  return (
-    <span ref={ref} className="tabular-nums">
-      {inView ? count : 0}{suffix}
+function wrapWords(text) {
+  return text.split(" ").map((word, i) => (
+    <span key={i} className="word" style={{ marginRight: "0.28em" }}>
+      {word}
     </span>
-  );
+  ));
 }
 
 export default function About() {
+  const textRef = useRef(null);
+  const subRef  = useRef(null);
+  const statsRef = useRef(null);
+
+  useEffect(() => {
+    const words = textRef.current?.querySelectorAll(".word");
+    if (words?.length) {
+      gsap.fromTo(
+        words,
+        { opacity: 0, filter: "blur(8px)" },
+        {
+          opacity: 1,
+          filter: "blur(0px)",
+          stagger: 0.04,
+          duration: 0.7,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: textRef.current,
+            start: "top 75%",
+            end: "bottom 30%",
+            scrub: 0.8,
+          },
+        }
+      );
+    }
+
+    const subWords = subRef.current?.querySelectorAll(".word");
+    if (subWords?.length) {
+      gsap.fromTo(
+        subWords,
+        { opacity: 0, filter: "blur(6px)" },
+        {
+          opacity: 1,
+          filter: "blur(0px)",
+          stagger: 0.035,
+          duration: 0.6,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: subRef.current,
+            start: "top 80%",
+            end: "bottom 35%",
+            scrub: 0.6,
+          },
+        }
+      );
+    }
+
+    if (statsRef.current) {
+      gsap.fromTo(
+        statsRef.current.querySelectorAll(".stat-item"),
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          stagger: 0.1,
+          duration: 0.7,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: statsRef.current,
+            start: "top 85%",
+          },
+        }
+      );
+    }
+
+    return () => ScrollTrigger.getAll().forEach((t) => t.kill());
+  }, []);
+
   return (
-    <section id="about" className="relative px-6 py-28 sm:py-36">
-      <div className="mx-auto max-w-6xl">
+    <section
+      id="about"
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+        padding: "20vh 4rem 15vh",
+        background: "rgb(10,10,10)",
+        zIndex: 10,
+      }}
+    >
+      {/* Section label */}
+      <span style={{
+        display: "block",
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: "0.75rem",
+        letterSpacing: "0.2em",
+        textTransform: "uppercase",
+        color: "rgba(255,255,255,0.35)",
+        marginBottom: "6vh",
+      }}>
+        About
+      </span>
 
-        <Reveal>
-          <div className="chip mb-4 flex items-center gap-3 text-signal">
-            <span className="text-faint">01 /</span>
-            <span className="uppercase tracking-[0.18em]">About</span>
-          </div>
-        </Reveal>
+      {/* Main bio text */}
+      <div
+        ref={textRef}
+        className="word-reveal"
+        style={{
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: "clamp(1.6rem, 3.2vw, 3rem)",
+          lineHeight: 1.5,
+          letterSpacing: "-0.01em",
+          color: "rgb(240,240,240)",
+          maxWidth: "65%",
+        }}
+      >
+        {wrapWords(profile.summary)}
+      </div>
 
-        <div className="grid grid-cols-1 gap-16 lg:grid-cols-[1fr_400px] lg:gap-20">
+      {/* Sub text */}
+      <div
+        ref={subRef}
+        className="word-reveal"
+        style={{
+          marginTop: "8vh",
+          marginLeft: "20%",
+          maxWidth: "32%",
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: "clamp(0.9rem, 1.5vw, 1.4rem)",
+          lineHeight: 1.7,
+          color: "rgba(255,255,255,0.55)",
+        }}
+      >
+        {wrapWords("Based in Tamil Nadu, India. Open to remote roles and global collaborations.")}
+      </div>
 
-          {/* Left: Story */}
-          <div>
-            <Reveal delay={0.05}>
-              <h2
-                className="font-display font-black leading-[1.05] tracking-[-0.03em] text-text"
-                style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)" }}
-              >
-                Most devs ship features.
-                <br />
-                <span className="text-gradient">I ship the boundary</span>
-                <br />
-                <span className="text-muted font-medium" style={{ fontSize: "clamp(1.4rem, 3vw, 2.4rem)" }}>
-                  that decides what gets through.
-                </span>
-              </h2>
-            </Reveal>
-
-            <Reveal delay={0.1} className="mt-8 space-y-4 text-lg text-muted leading-relaxed">
-              <p>{profile.summary}</p>
-              <p>
-                My stack lives in the MERN ecosystem: React on the front, Node/Express or
-                Django on the back, PostgreSQL underneath. The work that actually shaped how
-                I think is access control -- building the layer that decides whether a request
-                gets through, gets logged, or gets blocked, and deploying it somewhere that stays up.
-              </p>
-              <p>
-                Outside client work I build to understand. A blog platform from raw REST APIs.
-                A cyberbullying classifier. Small tools that taught me something when I made them.
-              </p>
-            </Reveal>
-
-            <Reveal delay={0.15} className="mt-8 flex flex-wrap gap-2.5">
-              {["Problem-first", "Security-minded", "Ships & maintains", "Clean APIs", "Production-grade"].map((t) => (
-                <span
-                  key={t}
-                  className="rounded-full border border-line bg-panel px-4 py-2 text-sm text-muted transition-colors hover:border-signal/50 hover:text-text"
-                >
-                  {t}
-                </span>
-              ))}
-            </Reveal>
-          </div>
-
-          {/* Right: Photo */}
-          <Reveal delay={0.1} className="relative mx-auto w-full max-w-[380px] lg:mx-0">
-            <div className="relative aspect-[3/4] overflow-hidden rounded-3xl border border-line bg-panel">
-              <img
-                src={profileImg}
-                alt={profile.name}
-                className="h-full w-full object-cover object-top"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-base/80 via-transparent to-transparent" />
-              <div className="glass absolute bottom-4 left-4 right-4 rounded-2xl px-4 py-3">
-                <p className="chip text-muted">
-                  <span className="text-mint">&#9679;</span> {profile.location}
-                </p>
-              </div>
+      {/* Stats */}
+      <div
+        ref={statsRef}
+        style={{
+          marginTop: "14vh",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "3rem 6rem",
+          borderTop: "1px solid rgba(255,255,255,0.1)",
+          paddingTop: "3rem",
+        }}
+      >
+        {stats.map((s) => (
+          <div key={s.label} className="stat-item" style={{ opacity: 0 }}>
+            <div style={{
+              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+              fontWeight: 700,
+              fontSize: "clamp(2rem, 4vw, 3.5rem)",
+              letterSpacing: "-0.04em",
+              color: "rgb(240,240,240)",
+              lineHeight: 1,
+            }}>
+              {s.value}
             </div>
-            <div className="pointer-events-none absolute -right-8 -top-8 h-36 w-36 rounded-full bg-violet/20 blur-3xl" />
-            <div className="pointer-events-none absolute -left-4 bottom-12 h-28 w-28 rounded-full bg-signal/12 blur-2xl" />
-          </Reveal>
-        </div>
-
-        {/* Stats */}
-        <div className="mt-20 grid grid-cols-2 gap-px overflow-hidden rounded-3xl border border-line bg-line sm:grid-cols-4">
-          {stats.map((s, i) => (
-            <Reveal
-              key={s.label}
-              delay={i * 0.07}
-              className="relative overflow-hidden bg-panel px-6 py-9 text-center sm:text-left"
-            >
-              <div className="font-display text-4xl font-black text-text sm:text-5xl">
-                <Counter target={s.value} />
-              </div>
-              <div className="chip mt-2 text-muted">{s.label}</div>
-            </Reveal>
-          ))}
-        </div>
+            <div style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "0.7rem",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.35)",
+              marginTop: "0.5rem",
+            }}>
+              {s.label}
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

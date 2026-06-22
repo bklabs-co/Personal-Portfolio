@@ -1,162 +1,203 @@
-﻿import { motion } from "framer-motion";
-import { FiArrowUpRight, FiDownload } from "react-icons/fi";
-import { profile, stats } from "../data/content";
-
-function HeroBg() {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* Primary blue aurora */}
-      <div
-        className="absolute -top-60 left-1/2 -translate-x-1/2 h-[700px] w-[900px] rounded-full"
-        style={{ background: "radial-gradient(ellipse at center, rgba(79,123,255,0.16) 0%, rgba(79,123,255,0.04) 45%, transparent 70%)" }}
-      />
-      {/* Violet accent â€” right */}
-      <div
-        className="absolute top-1/3 -right-32 h-[550px] w-[550px] rounded-full"
-        style={{ background: "radial-gradient(ellipse at center, rgba(155,135,255,0.13) 0%, transparent 65%)" }}
-      />
-      {/* Subtle bottom-left glow */}
-      <div
-        className="absolute -bottom-20 -left-20 h-[380px] w-[380px] rounded-full"
-        style={{ background: "radial-gradient(ellipse at center, rgba(79,123,255,0.07) 0%, transparent 70%)" }}
-      />
-      {/* Grid */}
-      <div className="bg-grid absolute inset-0" />
-      {/* Grain */}
-      <div className="bg-grain absolute inset-0" />
-    </div>
-  );
-}
-
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] } },
-};
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { profile } from "../data/content";
 
 export default function Hero() {
+  const taglineRef = useRef(null);
+  const nameRef    = useRef(null);
+  const barRef     = useRef(null);
+
+  useEffect(() => {
+    const tl = gsap.timeline({ delay: 0.2 });
+
+    if (nameRef.current) {
+      const parts = nameRef.current.querySelectorAll(".name-part");
+      tl.fromTo(parts,
+        { opacity: 0, y: 60 },
+        { opacity: 1, y: 0, stagger: 0.15, duration: 1.1, ease: "power3.out" }
+      );
+    }
+    if (taglineRef.current) {
+      tl.fromTo(taglineRef.current,
+        { opacity: 0, clipPath: "inset(0 0 100% 0)" },
+        { opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 0.8, ease: "power2.out" },
+        "-=0.4"
+      );
+    }
+    if (barRef.current) {
+      tl.fromTo(barRef.current,
+        { opacity: 0, clipPath: "inset(0 0 100% 0)" },
+        { opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 0.6, ease: "power2.out" },
+        "-=0.3"
+      );
+    }
+  }, []);
+
   const scrollTo = (id) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
   return (
     <section
       id="top"
-      className="relative flex min-h-[100svh] flex-col justify-center overflow-hidden px-6 pt-32 pb-24"
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100vh",
+        overflow: "hidden",
+        background: "rgb(10,10,10)",
+      }}
     >
-      <HeroBg />
+      {/* Red atmospheric glow */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: "-10%",
+          right: "-5%",
+          width: "65vw",
+          height: "110vh",
+          background:
+            "radial-gradient(ellipse at top right, rgba(255,30,0,0.45) 0%, rgba(160,0,0,0.25) 35%, rgba(80,0,0,0.1) 60%, transparent 75%)",
+          filter: "blur(60px)",
+          pointerEvents: "none",
+          animation: "blob-drift 14s ease-in-out infinite",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          bottom: "0",
+          left: "0",
+          width: "35vw",
+          height: "50vh",
+          background:
+            "radial-gradient(ellipse at bottom left, rgba(255,30,0,0.08) 0%, transparent 70%)",
+          filter: "blur(40px)",
+          pointerEvents: "none",
+        }}
+      />
 
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="relative z-10 mx-auto w-full max-w-6xl"
+      {/* Tagline - top left */}
+      <p
+        ref={taglineRef}
+        style={{
+          position: "absolute",
+          top: "3rem",
+          left: "3rem",
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontStyle: "italic",
+          fontSize: "clamp(0.8rem, 1.1vw, 0.95rem)",
+          lineHeight: 1.75,
+          color: "rgb(240,240,240)",
+          maxWidth: "26rem",
+          opacity: 0,
+        }}
       >
-        {/* Status badge */}
-        <motion.div variants={fadeUp} className="mb-10">
-          <span className="inline-flex items-center gap-2.5 rounded-full border border-line bg-panel/70 px-4 py-2 text-sm text-muted backdrop-blur-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-pulse-dot rounded-full bg-mint opacity-75" />
-              <span className="inline-flex h-2 w-2 rounded-full bg-mint" />
-            </span>
-            Open to full-time roles
-          </span>
-        </motion.div>
+        {profile.tagline}
+      </p>
 
-        {/* Main heading â€” huge Satoshi */}
-        <motion.h1 variants={fadeUp} className="font-display font-black leading-[0.88] tracking-[-0.04em]">
-          <span
-            className="block text-text"
-            style={{ fontSize: "clamp(3.8rem, 10.5vw, 9rem)" }}
-          >
-            {profile.name.split(" ")[0]}
-          </span>
-          <span
-            className="text-gradient block"
-            style={{ fontSize: "clamp(3.8rem, 10.5vw, 9rem)" }}
-          >
-            {profile.name.split(" ").slice(1).join(" ")}.
-          </span>
-        </motion.h1>
-
-        {/* Role line */}
-        <motion.div variants={fadeUp} className="mt-8 flex items-center gap-4">
-          <span className="h-px w-12 bg-signal/50 shrink-0" />
-          <span className="chip uppercase tracking-[0.22em] text-signal">
-            {profile.role} &middot; {profile.subRole}
-          </span>
-        </motion.div>
-
-        {/* Tagline */}
-        <motion.p
-          variants={fadeUp}
-          className="mt-7 max-w-lg text-xl font-light leading-relaxed text-muted sm:text-2xl"
-        >
-          {profile.tagline}
-        </motion.p>
-        <motion.p variants={fadeUp} className="mt-3 chip text-faint uppercase tracking-[0.14em]">
-          MERN &middot; Django &middot; PostgreSQL &middot; Cloudflare &middot; Access Control
-        </motion.p>
-
-        {/* CTAs */}
-        <motion.div variants={fadeUp} className="mt-11 flex flex-wrap items-center gap-3">
-          <button
-            onClick={() => scrollTo("work")}
-            className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-signal px-7 py-4 text-sm font-semibold text-white shadow-lg shadow-signal/20 transition-shadow hover:shadow-signal/40"
-          >
-            <span className="relative z-10">View Work</span>
-            <FiArrowUpRight className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            <span className="absolute inset-0 bg-gradient-to-r from-signal via-violet to-signal bg-[length:200%] opacity-0 transition-opacity duration-500 group-hover:opacity-40" />
-          </button>
-          <button
-            onClick={() => scrollTo("contact")}
-            className="inline-flex items-center gap-2 rounded-full border border-line bg-panel/60 px-7 py-4 text-sm font-medium text-text backdrop-blur-sm transition-all hover:border-signal/50 hover:text-signal"
-          >
-            Contact Me
-          </button>
-          <a
-            href="/Bharanikumar-R-Resume.pdf"
-            download
-            className="inline-flex items-center gap-1.5 text-sm text-faint transition-colors hover:text-muted"
-          >
-            <FiDownload className="h-3.5 w-3.5" />
-            <span>CV</span>
-          </a>
-        </motion.div>
-
-        {/* Stats row */}
-        <motion.div
-          variants={fadeUp}
-          className="mt-16 flex flex-wrap items-center gap-x-10 gap-y-4 border-t border-line pt-8"
-        >
-          {stats.map((s) => (
-            <div key={s.label} className="flex items-baseline gap-2.5">
-              <span className="font-display text-2xl font-black tabular-nums text-text sm:text-3xl">
-                {s.value}
-              </span>
-              <span className="chip text-faint uppercase tracking-[0.1em]">{s.label}</span>
-            </div>
-          ))}
-        </motion.div>
-      </motion.div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.4, duration: 0.6 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+      {/* Main name block - centered vertically */}
+      <div
+        ref={nameRef}
+        style={{
+          position: "absolute",
+          bottom: "clamp(5rem, 12vh, 9rem)",
+          left: "3rem",
+          right: "3rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+          lineHeight: 1,
+          overflow: "hidden",
+        }}
       >
-        <span className="chip text-faint uppercase tracking-[0.22em]">scroll</span>
-        <motion.div
-          animate={{ scaleY: [1, 0.35, 1], opacity: [0.35, 1, 0.35] }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-          className="h-9 w-px bg-gradient-to-b from-faint to-transparent"
-        />
-      </motion.div>
+        <span
+          className="name-part"
+          style={{
+            fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+            fontWeight: 700,
+            fontSize: "clamp(4rem, 11.5vw, 11rem)",
+            letterSpacing: "-0.03em",
+            color: "rgb(240,240,240)",
+            display: "block",
+            lineHeight: 1,
+          }}
+        >
+          Bharanikumar
+        </span>
+        <span
+          className="name-part"
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontStyle: "italic",
+            fontWeight: 400,
+            fontSize: "clamp(4rem, 11.5vw, 11rem)",
+            letterSpacing: "-0.02em",
+            color: "rgb(255,30,0)",
+            display: "block",
+            lineHeight: 1,
+          }}
+        >
+          R.
+        </span>
+      </div>
+
+      {/* Horizontal rule */}
+      <div
+        ref={barRef}
+        style={{
+          position: "absolute",
+          bottom: "calc(clamp(5rem, 12vh, 9rem) - 1.5rem)",
+          left: "3rem",
+          right: "3rem",
+          height: "1px",
+          background: "rgba(255,255,255,0.15)",
+          opacity: 0,
+        }}
+      />
+
+      {/* Subtitle row */}
+      <div
+        style={{
+          position: "absolute",
+          top: "3rem",
+          right: "3rem",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-end",
+          gap: "0.4rem",
+        }}
+      >
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.75rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>
+          {profile.role}
+        </span>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.75rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)" }}>
+          {profile.location}
+        </span>
+      </div>
+
+      {/* Scroll hint */}
+      <div
+        onClick={() => scrollTo("about")}
+        style={{
+          position: "absolute",
+          bottom: "1.5rem",
+          left: "50%",
+          transform: "translateX(-50%)",
+          cursor: "pointer",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "0.4rem",
+          opacity: 0.35,
+        }}
+      >
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase" }}>
+          scroll
+        </span>
+        <div style={{ width: "1px", height: "32px", background: "linear-gradient(to bottom, rgba(255,255,255,0.6), transparent)" }} />
+      </div>
     </section>
   );
 }

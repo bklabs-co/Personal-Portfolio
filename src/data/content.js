@@ -7,7 +7,7 @@ export const profile = {
   location: "Tamil Nadu, India",
   email: "kbharani98@gmail.com",
   phone: "+91 9944827683",
-  linkedin: "https://linkedin.com/in/bharanikumarr",
+  linkedin: "https://www.linkedin.com/in/bharanikumarz/",
   github: "https://github.com/bklabs-co",
   tagline:
     "I build the layer between a request and the system that has to trust it.",

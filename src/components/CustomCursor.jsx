@@ -1,81 +1,44 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
-// Subtle custom cursor: a small dot plus a lagging ring.
-// Disabled automatically on touch devices.
 export default function CustomCursor() {
-  const dotRef = useRef(null);
+  const dotRef  = useRef(null);
   const ringRef = useRef(null);
-  const [enabled, setEnabled] = useState(false);
+  const pos     = useRef({ x: 0, y: 0 });
+  const ring    = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
-    if (isTouch) return;
-    setEnabled(true);
-
-    let mouseX = 0;
-    let mouseY = 0;
-    let ringX = 0;
-    let ringY = 0;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
 
     const onMove = (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
+      pos.current = { x: e.clientX, y: e.clientY };
       if (dotRef.current) {
-        dotRef.current.style.transform = `translate(${mouseX}px, ${mouseY}px)`;
+        dotRef.current.style.transform = `translate(${e.clientX - 3}px, ${e.clientY - 3}px)`;
       }
     };
+    window.addEventListener("mousemove", onMove, { passive: true });
 
     let raf;
-    const tick = () => {
-      ringX += (mouseX - ringX) * 0.18;
-      ringY += (mouseY - ringY) * 0.18;
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const animate = () => {
+      ring.current.x = lerp(ring.current.x, pos.current.x, 0.12);
+      ring.current.y = lerp(ring.current.y, pos.current.y, 0.12);
       if (ringRef.current) {
-        ringRef.current.style.transform = `translate(${ringX}px, ${ringY}px)`;
+        ringRef.current.style.transform = `translate(${ring.current.x - 16}px, ${ring.current.y - 16}px)`;
       }
-      raf = requestAnimationFrame(tick);
+      raf = requestAnimationFrame(animate);
     };
-
-    const onDown = () => ringRef.current?.classList.add("scale-75");
-    const onUp = () => ringRef.current?.classList.remove("scale-75");
-
-    const onEnterInteractive = () => ringRef.current?.classList.add("scale-150", "opacity-60");
-    const onLeaveInteractive = () => ringRef.current?.classList.remove("scale-150", "opacity-60");
-
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mousedown", onDown);
-    window.addEventListener("mouseup", onUp);
-    raf = requestAnimationFrame(tick);
-
-    const interactive = document.querySelectorAll("a, button, [data-cursor-interactive]");
-    interactive.forEach((el) => {
-      el.addEventListener("mouseenter", onEnterInteractive);
-      el.addEventListener("mouseleave", onLeaveInteractive);
-    });
+    raf = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mousedown", onDown);
-      window.removeEventListener("mouseup", onUp);
       cancelAnimationFrame(raf);
-      interactive.forEach((el) => {
-        el.removeEventListener("mouseenter", onEnterInteractive);
-        el.removeEventListener("mouseleave", onLeaveInteractive);
-      });
     };
   }, []);
 
-  if (!enabled) return null;
-
   return (
-    <div className="pointer-events-none fixed inset-0 z-[200] hidden md:block">
-      <div
-        ref={dotRef}
-        className="absolute top-0 left-0 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-signal"
-      />
-      <div
-        ref={ringRef}
-        className="absolute top-0 left-0 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-signal/50 transition-[transform,opacity] duration-200 ease-out opacity-40"
-      />
-    </div>
+    <>
+      <div ref={dotRef} style={{ position: "fixed", top: 0, left: 0, width: 6, height: 6, borderRadius: "50%", background: "rgb(240,240,240)", pointerEvents: "none", zIndex: 99999, mixBlendMode: "difference" }} />
+      <div ref={ringRef} style={{ position: "fixed", top: 0, left: 0, width: 32, height: 32, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.5)", pointerEvents: "none", zIndex: 99999, mixBlendMode: "difference" }} />
+    </>
   );
 }

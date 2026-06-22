@@ -1,74 +1,132 @@
-import Reveal from "./Reveal";
+import { useState, useRef, useEffect } from "react";
 import { skillGroups } from "../data/content";
 
-const GROUP_ACCENTS = {
-  "Core": "#4f7bff",
-  "Also fluent": "#9b87ff",
-  "Ship & run": "#34d399",
-  "Workflow": "#fbbf24",
-};
+function AccordionItem({ group }) {
+  const [open, setOpen] = useState(false);
+  const bodyRef = useRef(null);
+  const innerRef = useRef(null);
+
+  useEffect(() => {
+    if (!bodyRef.current || !innerRef.current) return;
+    bodyRef.current.style.height = open
+      ? innerRef.current.offsetHeight + "px"
+      : "0px";
+  }, [open]);
+
+  return (
+    <div style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: "100%",
+          background: "none",
+          border: "none",
+          padding: "1.4em 0",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          cursor: "pointer",
+          color: "rgb(240,240,240)",
+        }}
+      >
+        <span style={{
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: "clamp(1.4rem, 2.8vw, 2.6rem)",
+          fontWeight: 400,
+          letterSpacing: "-0.02em",
+          color: open ? "rgb(240,240,240)" : "rgba(255,255,255,0.45)",
+          transition: "color 0.35s",
+          textAlign: "left",
+        }}>
+          {group.label}
+        </span>
+        <span style={{
+          fontSize: "1.6rem",
+          color: open ? "rgb(255,30,0)" : "rgba(255,255,255,0.3)",
+          transform: open ? "rotate(45deg)" : "rotate(0deg)",
+          transition: "all 0.35s cubic-bezier(0.87,0,0.13,1)",
+          lineHeight: 1,
+          flexShrink: 0,
+        }}>
+          +
+        </span>
+      </button>
+      <div ref={bodyRef} className="accordion-body">
+        <ul
+          ref={innerRef}
+          style={{
+            listStyle: "none",
+            padding: "0 0 1.8rem",
+            margin: 0,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.6rem 2rem",
+          }}
+        >
+          {group.skills.map((sk) => (
+            <li key={sk} style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: "clamp(0.9rem, 1.2vw, 1.15rem)",
+              lineHeight: 2.2,
+              color: "rgba(255,255,255,0.4)",
+            }}>
+              {sk}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
 
 export default function Skills() {
   return (
-    <section id="skills" className="relative overflow-hidden px-6 py-28 sm:py-36">
-      <div className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute right-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 rounded-full"
-          style={{ background: "radial-gradient(ellipse, rgba(155,135,255,0.07) 0%, transparent 70%)" }}
-        />
+    <section
+      id="skills"
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+        padding: "20vh 4rem 15vh",
+        background: "rgb(10,10,10)",
+        zIndex: 10,
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: "0 8vw",
+        alignItems: "start",
+      }}
+    >
+      {/* Left: label + description */}
+      <div>
+        <span style={{
+          display: "block",
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: "0.75rem",
+          letterSpacing: "0.2em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.35)",
+          marginBottom: "6vh",
+        }}>
+          Skills
+        </span>
+        <p style={{
+          fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+          fontWeight: 700,
+          fontSize: "clamp(1.8rem, 3vw, 2.8rem)",
+          letterSpacing: "-0.03em",
+          lineHeight: 1.15,
+          color: "rgb(240,240,240)",
+          textTransform: "uppercase",
+        }}>
+          Full Stack Engineer.<br />
+          Specialized in Access Control &amp; System Architecture.
+        </p>
       </div>
 
-      <div className="relative mx-auto max-w-6xl">
-        <Reveal>
-          <div className="chip mb-4 flex items-center gap-3 text-signal">
-            <span className="text-faint">04 /</span>
-            <span className="uppercase tracking-[0.18em]">Stack</span>
-          </div>
-        </Reveal>
-
-        <Reveal delay={0.05}>
-          <h2
-            className="font-display font-black leading-[1.05] tracking-[-0.03em] text-text"
-            style={{ fontSize: "clamp(2rem, 5vw, 3.8rem)" }}
-          >
-            Tools I reach for
-            <span className="text-muted font-medium"> without thinking twice.</span>
-          </h2>
-        </Reveal>
-
-        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {skillGroups.map((group, i) => {
-            const color = GROUP_ACCENTS[group.label] || "#4f7bff";
-            return (
-              <Reveal
-                key={group.label}
-                delay={i * 0.08}
-                className="group relative overflow-hidden rounded-2xl border border-line bg-panel p-6 transition-all hover:border-signal/30"
-              >
-                <div
-                  className="absolute left-0 right-0 top-0 h-0.5 opacity-50 transition-opacity group-hover:opacity-100"
-                  style={{ background: "linear-gradient(90deg, " + color + ", transparent)" }}
-                />
-                <h3
-                  className="chip mb-5 uppercase tracking-[0.2em]"
-                  style={{ color }}
-                >
-                  {group.label}
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {group.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="chip rounded-full border border-line px-3 py-1.5 text-muted transition-colors hover:border-signal/30 hover:text-text"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </Reveal>
-            );
-          })}
-        </div>
+      {/* Right: accordion */}
+      <div style={{ paddingTop: "calc(0.75rem + 6vh)" }}>
+        {(skillGroups || []).map((group) => (
+          <AccordionItem key={group.label} group={group} />
+        ))}
       </div>
     </section>
   );
